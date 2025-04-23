@@ -1,0 +1,40 @@
+def dls_iterative(graph, start_node, depth_limit):
+
+    # Stack stores (node, depth) pairs
+    stack = [(start_node, 0)]
+    visited = set()
+    traversal_order = []
+    
+    while stack:
+        current_node, current_depth = stack.pop()
+        
+        if current_node not in visited:
+            visited.add(current_node)
+            traversal_order.append(current_node)
+            
+            # Only add neighbors if depth limit not reached
+            if current_depth < depth_limit:
+                # Add neighbors in reverse to maintain original visit order
+                for neighbor in reversed(graph[current_node]):
+                    if neighbor not in visited:
+                        stack.append((neighbor, current_depth + 1))
+                    
+    return traversal_order
+
+# Example usage
+if __name__ == "__main__":
+    # Sample graph represented as an adjacency list
+    graph = {
+        'A': ['B', 'C'],
+        'B': ['A', 'D', 'E'],
+        'C': ['A', 'F'],
+        'D': ['B'],
+        'E': ['B', 'F'],
+        'F': ['C', 'E']
+    }
+    
+    # Try different depth limits
+    for limit in [1, 2, 3]:
+        result_iterative = dls_iterative(graph, 'A', limit)
+        print(f"DLS Traversal (Iterative, Limit={limit}):", result_iterative)
+        print()

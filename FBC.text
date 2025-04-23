@@ -1,0 +1,72 @@
+class KnowledgeBase:
+    def __init__(self):
+        self.facts = set()
+        self.rules = []
+
+    def add_fact(self, fact):
+        self.facts.add(fact)
+
+    def add_rule(self, consequent, antecedents):
+        self.rules.append((consequent, antecedents))
+
+    def forward_chaining(self, query):
+        print("\nForward Chaining:")
+        print("Query:", query)
+        print("Initial facts:", self.facts)
+        
+        new_facts = set()
+        while True:
+            added = False
+            for consequent, antecedents in self.rules:
+                if consequent not in self.facts and antecedents.issubset(self.facts):
+                    self.facts.add(consequent)
+                    new_facts.add(consequent)
+                    print(f"Applied rule: {antecedents} -> {consequent}")
+                    added = True
+            
+            if not added or query in self.facts:
+                break
+        
+        print("Result:", query in self.facts)
+        return query in self.facts
+
+    def backward_chaining(self, query):
+        print("\nBackward Chaining:")
+        print("Query:", query)
+        if query in self.facts:
+            print("Fact found directly")
+            return True
+            
+        for consequent, antecedents in self.rules:
+            if consequent == query:
+                print(f"Trying to prove: {antecedents} -> {consequent}")
+                if all(self.backward_chaining(ant) for ant in antecedents):
+                    print(f"Proved: {query}")
+                    return True
+        return False
+
+def main():
+    kb = KnowledgeBase()
+    
+    # Add predefined facts
+    facts = ['has_fur', 'has_claws']
+    for fact in facts:
+        kb.add_fact(fact)
+    print("Facts:", facts)
+
+    # Add predefined rules
+    kb.add_rule('is_mammal', {'has_fur'})
+    kb.add_rule('is_carnivore', {'has_claws'})
+    kb.add_rule('is_cat', {'is_mammal', 'is_carnivore'})
+    print("Rules added: ")
+    print("1. has_fur -> is_mammal")
+    print("2. has_claws -> is_carnivore")
+    print("3. is_mammal + is_carnivore -> is_cat")
+
+    # Test query
+    query = 'is_cat'
+    kb.forward_chaining(query)
+    kb.backward_chaining(query)
+
+if __name__ == "__main__":
+    main()

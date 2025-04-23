@@ -1,0 +1,105 @@
+import random
+
+class WumpusWorld:
+    def __init__(self, size=4):
+        self.size = size
+        self.world = [[' ' for _ in range(size)] for _ in range(size)]
+        self.agent_pos = [0, 0]
+        self.game_over = False
+        self.has_gold = False
+        self.setup_world()
+
+    def setup_world(self):
+        # Place Wumpus
+        wx, wy = random.randint(0, self.size-1), random.randint(0, self.size-1)
+        while (wx, wy) == (0, 0):  # Don't place on agent start
+            wx, wy = random.randint(0, self.size-1), random.randint(0, self.size-1)
+        self.world[wx][wy] = 'W'
+        
+        # Place Gold
+        gx, gy = random.randint(0, self.size-1), random.randint(0, self.size-1)
+        while (gx, gy) == (0, 0) or (gx, gy) == (wx, wy):
+            gx, gy = random.randint(0, self.size-1), random.randint(0, self.size-1)
+        self.world[gx][gy] = 'G'
+        
+        # Place Pits
+        for _ in range(2):
+            px, py = random.randint(0, self.size-1), random.randint(0, self.size-1)
+            while (px, py) == (0, 0) or self.world[px][py] != ' ':
+                px, py = random.randint(0, self.size-1), random.randint(0, self.size-1)
+            self.world[px][py] = 'P'
+
+    def get_percepts(self):
+        x, y = self.agent_pos
+        percepts = []
+        
+        # Check adjacent cells
+        adjacent = [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
+        for ax, ay in adjacent:
+            if 0 <= ax < self.size and 0 <= ay < self.size:
+                if self.world[ax][ay] == 'W':
+                    percepts.append('Stench')
+                elif self.world[ax][ay] == 'P':
+                    percepts.append('Breeze')
+                elif self.world[ax][ay] == 'G':
+                    percepts.append('Glitter')
+        
+        return percepts if percepts else ['Nothing']
+
+    def move(self, direction):
+        x, y = self.agent_pos
+        
+        if direction == 'up' and x > 0:
+            x -= 1
+        elif direction == 'down' and x < self.size-1:
+            x += 1
+        elif direction == 'left' and y > 0:
+            y -= 1
+        elif direction == 'right' and y < self.size-1:
+            y += 1
+        
+        self.agent_pos = [x, y]
+        
+        # Check current position
+        if self.world[x][y] == 'W':
+            print("Game Over! Eaten by Wumpus!")
+            self.game_over = True
+        elif self.world[x][y] == 'P':
+            print("Game Over! Fell into a pit!")
+            self.game_over = True
+        elif self.world[x][y] == 'G':
+            print("Congratulations! Found the gold!")
+            self.has_gold = True
+            self.game_over = True
+
+    def print_world(self):
+        for i in range(self.size):
+            print("+---" * self.size + "+")
+            for j in range(self.size):
+                if [i, j] == self.agent_pos:
+                    print("|🤠", end="")
+                else:
+                    print(f"| {self.world[i][j]}", end=" ")
+            print("|")
+        print("+---" * self.size + "+")
+
+def main():
+    game = WumpusWorld()
+    print("Welcome to Wumpus World!")
+    print("Commands: up, down, left, right, exit")
+    
+    while not game.game_over:
+        game.print_world()
+        percepts = game.get_percepts()
+        print("\nYou perceive:", ", ".join(percepts))
+        
+        move = input("\nEnter your move: ").lower()
+        if move == 'exit':
+            break
+        elif move in ['up', 'down', 'left', 'right']:
+            game.move(move)
+        else:
+            print("Invalid move! Use: up, down, left, right")
+
+if __name__ == "__main__":
+    main()

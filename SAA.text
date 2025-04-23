@@ -1,0 +1,100 @@
+import random
+import math
+
+class SimulatedAnnealing:
+    def __init__(self, n):
+        self.n = n
+        self.current_state = self.initial_state()
+        
+    def initial_state(self):
+        """Generate random initial state"""
+        return [random.randint(0, self.n-1) for _ in range(self.n)]
+    
+    def cost(self, state):
+        """Calculate number of conflicts (attacking queens)"""
+        conflicts = 0
+        for i in range(self.n):
+            for j in range(i + 1, self.n):
+                if state[i] == state[j]:  # Same row
+                    conflicts += 1
+                if abs(state[i] - state[j]) == j - i:  # Diagonal
+                    conflicts += 1
+        return conflicts
+    
+    def neighbor(self, state):
+        """Generate neighbor by moving one queen randomly"""
+        new_state = state.copy()
+        col = random.randint(0, self.n-1)
+        new_row = random.randint(0, self.n-1)
+        new_state[col] = new_row
+        return new_state
+    
+    def acceptance_probability(self, old_cost, new_cost, temperature):
+        """Calculate probability of accepting worse solution"""
+        if new_cost < old_cost:
+            return 1.0
+        return math.exp((old_cost - new_cost) / temperature)
+    
+    def solve(self, initial_temp=1.0, cooling_rate=0.95, min_temp=0.01):
+        """Run simulated annealing algorithm"""
+        temperature = initial_temp
+        current_cost = self.cost(self.current_state)
+        
+        while temperature > min_temp and current_cost > 0:
+            new_state = self.neighbor(self.current_state)
+            new_cost = self.cost(new_state)
+            
+            # Decide if we should accept the neighbor
+            ap = self.acceptance_probability(current_cost, new_cost, temperature)
+            if ap > random.random():
+                self.current_state = new_state
+                current_cost = new_cost
+            
+            temperature *= cooling_rate
+            
+        return self.current_state, current_cost
+
+def print_board(board):
+    """Print the chess board"""
+    n = len(board)
+    for row in range(n):
+        line = ""
+        for col in range(n):
+            if board[col] == row:
+                line += "Q "
+            else:
+                line += ". "
+        print(line)
+    print()
+
+def main():
+    # Get board size
+    while True:
+        try:
+            n = int(input("Enter the board size (n): "))
+            if n <= 3:
+                print("Board size must be greater than 3")
+                continue
+            break
+        except ValueError:
+            print("Please enter a valid number")
+    
+    # Initialize and run simulated annealing
+    sa = SimulatedAnnealing(n)
+    print("\nInitial state:")
+    print_board(sa.current_state)
+    print("Initial conflicts:", sa.cost(sa.current_state))
+    
+    solution, cost = sa.solve()
+    
+    print("\nFinal state:")
+    print_board(solution)
+    print("Final conflicts:", cost)
+    
+    if cost == 0:
+        print("Solution found!")
+    else:
+        print("No solution found")
+
+if __name__ == "__main__":
+    main()

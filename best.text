@@ -1,0 +1,62 @@
+def heuristic_bounded_search(graph, start, goal, h, bound):
+    open_list = [(h[start], start)]
+    came_from = {}
+    visited = set()
+
+    while open_list:
+        open_list.sort()
+        _, current = open_list.pop(0)
+
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            print("Success")
+            return path[::-1]
+
+        visited.add(current)
+
+        for neighbor in graph[current]:
+            if neighbor not in visited and h[neighbor] <= bound:
+                came_from[neighbor] = current
+                open_list.append((h[neighbor], neighbor))
+                visited.add(neighbor)
+
+    print("Failure")
+    return []
+
+def create_graph():
+    # Define the graph using adjacency lists
+    graph = {
+        'A': ['B', 'C'],
+        'B': ['A', 'D', 'E'],
+        'C': ['A', 'F'],
+        'D': ['B'],
+        'E': ['B', 'F'],
+        'F': ['C', 'E']
+    }
+    
+    # Define heuristic values for each node
+    h = {
+        'A': 10,
+        'B': 8,
+        'C': 7,
+        'D': 6,
+        'E': 3,
+        'F': 1
+    }
+    
+    return graph, h
+
+def main():
+    graph, h = create_graph()
+    start = input("Enter start node: ")
+    goal = input("Enter goal node: ")
+    bound = int(input("Enter heuristic bound value: "))
+    path = heuristic_bounded_search(graph, start, goal, h, bound)
+    print("Heuristic Bounded Search Path:", path)
+
+if __name__ == "__main__":
+    main()

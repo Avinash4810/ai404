@@ -1,0 +1,57 @@
+import heapq
+
+def uniform_cost_search(start, goal, graph):
+    visited = set()
+    queue = [(0, start, [start])]
+
+    while queue:
+        cost, node, path = heapq.heappop(queue)
+        if node == goal:
+            return path, cost
+        if node not in visited:
+            visited.add(node)
+            for neighbor, weight in graph.get(node, []):
+                heapq.heappush(queue, (cost + weight, neighbor, path + [neighbor]))
+    return None, float('inf')
+
+def get_edge_input():
+    while True:
+        try:
+            edge = input().split()
+            if len(edge) != 3:
+                print("Please enter three values: source destination cost")
+                continue
+            u, v, w = edge
+            try:
+                return u, v, int(w)
+            except ValueError:
+                print("Cost must be a number")
+        except Exception as e:
+            print("Invalid input. Format: node1 node2 cost")
+
+# Input section
+graph = {}
+while True:
+    try:
+        n = int(input("Number of edges: "))
+        if n < 0:
+            print("Please enter a non-negative number")
+            continue
+        break
+    except ValueError:
+        print("Please enter a valid number")
+
+print("Enter edges (format: node1 node2 cost):")
+for _ in range(n):
+    u, v, w = get_edge_input()
+    graph.setdefault(u, []).append((v, w))
+
+start = input("Start node: ")
+goal = input("Goal node: ")
+
+path, total_cost = uniform_cost_search(start, goal, graph)
+if path:
+    print("Path:", ' -> '.join(path))
+    print("Total cost:", total_cost)
+else:
+    print("No path found.")

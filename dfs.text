@@ -1,0 +1,47 @@
+class Tree:
+    def __init__(self):
+        self.tree = {}
+
+    def add_edge(self, parent, child):
+        if parent not in self.tree:
+            self.tree[parent] = []
+            self.tree[parent].append(child)
+
+    def dfs(self, start_node):
+        visited = set()
+        path = []
+
+        def dfs_helper(node):
+            visited.add(node)
+            path.append(node)
+
+            if node in self.tree:
+                for neighbor in self.tree[node]:
+                    if neighbor not in visited:
+                        dfs_helper(neighbor)
+            else:
+                print(f"Path: {path}")
+            path.pop()
+
+        dfs_helper(start_node)
+
+
+def build_tree():
+    tree = Tree()
+    num_edges = int(input("Enter the number of edges: "))
+    for _ in range(num_edges):
+        parent = input("Enter the parent node: ")
+        child = input("Enter the child node: ")
+        tree.add_edge(parent, child)
+    return tree
+
+
+def main():
+    tree = build_tree()
+    root_node = input("Enter the root node: ")
+    print("\nDFS Traversal to all Goal States:")
+    tree.dfs(root_node)
+
+
+if __name__ == "__main__":
+    main()

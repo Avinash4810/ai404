@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ai404</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .experiment-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .experiment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .experiment-name {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .copy-icon {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+            color: #4a5568;
+        }
+        
+        .experiment-card:hover .copy-icon {
+            opacity: 1;
+            color: #2d3748;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeInOut 2s forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="experiment-card" onclick='fetchAndCopy("iterative.text")'>
+            <h2 class="experiment-name">Iterative Deepening Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("bfs.text")'>
+            <h2 class="experiment-name">Breadth-First Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card"  onclick='fetchAndCopy("dfs.text")'>
+            <h2 class="experiment-name">Depth-First Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card"  onclick='fetchAndCopy("dls.text")'>
+            <h2 class="experiment-name">Depth-Limited Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card"  onclick='fetchAndCopy("ucs.text")'>
+            <h2 class="experiment-name">Uniform Cost Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("best.text")'>
+            <h2 class="experiment-name">Best First Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("a.text")'>
+            <h2 class="experiment-name">A* Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("greedy.text")'>
+            <h2 class="experiment-name">Greedy Search</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card"  onclick='fetchAndCopy("ttt.text")'>
+            <h2 class="experiment-name">Tic-Tac-Toe</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("bwp.text")'>
+            <h2 class="experiment-name">Block World Problem</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("ihc.text")'>
+            <h2 class="experiment-name">Informed Hill Climb</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("SAA.text")'>
+            <h2 class="experiment-name">Simulated Annealing algorithm</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("FBC.text")'>
+            <h2 class="experiment-name">Forward & Backward Chaining</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+        <div class="experiment-card" onclick='fetchAndCopy("wumpus.text")'>
+            <h2 class="experiment-name">Wumpus World Problem</h2>
+            <i class="bi bi-copy copy-icon"></i>
+        </div>
+
+    </div>
+    <script>
+        function copyToClipboard(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            // Create and show notification
+            const notification = document.createElement('div');
+            notification.textContent = 'Copied to clipboard!';
+            notification.className = 'notification';
+            document.body.appendChild(notification);
+            
+            // Remove notification after animation
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+}
+
+// Add CSS animation for notification
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        15% { opacity: 1; transform: translate(-50%, 0); }
+        85% { opacity: 1; transform: translate(-50%, 0); }
+        100% { opacity: 0; transform: translate(-50%, -20px); }
+    }
+`;
+document.head.appendChild(style);
+
+async function fetchAndCopy(filename) {
+    try {
+        const response = await fetch(filename);
+        const text = await response.text();
+        copyToClipboard(text);
+    } catch (err) {
+        console.error('Failed to fetch file:', err);
+    }
+}
+    </script>
+
+</body>
+</html>

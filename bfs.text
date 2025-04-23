@@ -1,0 +1,58 @@
+from collections import deque
+
+class Tree:
+    def __init__(self):
+        self.tree = {}
+
+    def add_edge(self, parent, child):
+        if parent not in self.tree:
+            self.tree[parent] = []
+        self.tree[parent].append(child)
+
+    def BFS(self, start_node):
+        if start_node not in self.tree and not any(start_node in children for children in self.tree.values()):
+            print(f"Error: Root node '{start_node}' is not part of the tree")
+            return
+
+        visited = set()
+        queue = deque([(start_node, [start_node])])
+
+        while queue:
+            node, path = queue.popleft()
+            if node not in visited:
+                visited.add(node)
+                
+                # Check if node is a leaf node (no children)
+                if node not in self.tree:
+                    print(f"Path to leaf node {node}: {' -> '.join(path)}")
+                
+                for child in self.tree.get(node, []):
+                    if child not in visited:
+                        queue.append((child, path + [child]))
+
+def build_tree():   
+    tree = Tree()
+    while True:
+        try:
+            num_edges = int(input("Enter the number of edges in the tree: "))
+            if num_edges < 0:
+                print("Please enter a non-negative number")
+                continue
+            break
+        except ValueError:
+            print("Please enter a valid number")
+    
+    for _ in range(num_edges):
+        parent = input("Enter the parent node: ")
+        child = input("Enter the child node: ")
+        tree.add_edge(parent,child)
+    return tree                             
+
+def main():     
+    tree = build_tree()
+    root_node = input("Enter the root node: ")
+    print("\nBFS Traversal to all Goal States:")
+    tree.BFS(root_node)
+
+if __name__ == "__main__":
+    main()

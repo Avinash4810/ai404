@@ -1,0 +1,104 @@
+import random
+
+class State:
+    def __init__(self, board):
+        self.board = board
+        self.size = len(board)
+        
+    def get_h_value(self):
+        """Calculate heuristic value (number of attacking pairs of queens)"""
+        h = 0
+        for i in range(self.size):
+            for j in range(i + 1, self.size):
+                # Check horizontal attacks
+                if self.board[i] == self.board[j]:
+                    h += 1
+                # Check diagonal attacks
+                if abs(self.board[i] - self.board[j]) == j - i:
+                    h += 1
+        return h
+    
+    def get_neighbors(self):
+        """Generate all possible neighbor states"""
+        neighbors = []
+        for i in range(self.size):
+            for j in range(self.size):
+                if j != self.board[i]:
+                    new_board = list(self.board)
+                    new_board[i] = j
+                    neighbors.append(State(new_board))
+        return neighbors
+
+def informed_hill_climbing(initial_state, max_iterations=1000):
+    current = initial_state
+    path = [list(current.board)]
+    
+    for _ in range(max_iterations):
+        neighbors = current.get_neighbors()
+        if not neighbors:
+            break
+            
+        # Find the neighbor with lowest h-value
+        next_state = min(neighbors, key=lambda x: x.get_h_value())
+        
+        if next_state.get_h_value() >= current.get_h_value():
+            break
+            
+        current = next_state
+        path.append(list(current.board))
+        
+        # Check if we found a solution (h-value = 0)
+        if current.get_h_value() == 0:
+            return current, path
+            
+    return current, path
+
+def print_board(board):
+    """Print the chessboard with queens"""
+    n = len(board)
+    for row in range(n):
+        line = ""
+        for col in range(n):
+            if board[col] == row:
+                line += "Q "
+            else:
+                line += ". "
+        print(line)
+    print()
+
+def main():
+    # Get board size from user
+    while True:
+        try:
+            n = int(input("Enter the board size (n): "))
+            if n <= 3:
+                print("Board size must be greater than 3")
+                continue
+            break
+        except ValueError:
+            print("Please enter a valid number")
+    
+    # Generate random initial state
+    initial_board = [random.randint(0, n-1) for _ in range(n)]
+    initial_state = State(initial_board)
+    
+    print("\nInitial State:")
+    print_board(initial_board)
+    print("Initial heuristic value:", initial_state.get_h_value())
+    
+    # Run informed hill climbing
+    final_state, path = informed_hill_climbing(initial_state)
+    
+    print("\nFinal State:")
+    print_board(final_state.board)
+    print("Final heuristic value:", final_state.get_h_value())
+    
+    print("\nNumber of steps:", len(path)-1)
+    
+    if final_state.get_h_value() == 0:
+        print("Solution found!")
+    else:
+        print("Stuck in local minimum")
+
+if __name__ == "__main__":
+    main()

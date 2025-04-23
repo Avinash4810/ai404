@@ -1,0 +1,87 @@
+class BlockWorldProblem:
+    def __init__(self):
+        self.state = {}
+        self.goal = {}
+        
+    def set_initial_state(self, blocks):
+        """Initialize the starting state of blocks"""
+        self.state = blocks.copy()
+        
+    def set_goal_state(self, blocks):
+        """Set the goal configuration"""
+        self.goal = blocks.copy()
+        
+    def is_clear(self, block):
+        """Check if a block has no other blocks on top of it"""
+        return not any(self.state[b] == block for b in self.state)
+        
+    def move(self, block, destination):
+        """Move a block to a new position"""
+        if block not in self.state:
+            return False
+        if destination != 'table' and destination not in self.state:
+            return False
+        if not self.is_clear(block):
+            return False
+        if destination != 'table' and not self.is_clear(destination):
+            return False
+            
+        self.state[block] = destination
+        return True
+        
+    def plan(self):
+        """Generate a plan to reach goal state"""
+        actions = []
+        current = self.state.copy()
+        
+        # First move blocks to table if they're in wrong position
+        for block in self.state:
+            if block in self.goal:
+                if current[block] != self.goal[block] and self.is_clear(block):
+                    actions.append(f"Move {block} from {current[block]} to table")
+                    current[block] = 'table'
+                    
+        # Then move blocks to their goal positions
+        for block in self.goal:
+            if current[block] != self.goal[block] and self.is_clear(block):
+                actions.append(f"Move {block} from {current[block]} to {self.goal[block]}")
+                current[block] = self.goal[block]
+                
+        return actions
+
+def main():
+    # Create problem instance
+    bwp = BlockWorldProblem()
+    
+    # Get number of blocks
+    n = int(input("Enter number of blocks: "))
+    
+    # Get initial state
+    print("\nEnter initial state (block position):")
+    initial_state = {}
+    for i in range(n):
+        block = input(f"Block {chr(65+i)}: ")
+        initial_state[chr(65+i)] = block
+    
+    # Get goal state
+    print("\nEnter goal state (block position):")
+    goal_state = {}
+    for i in range(n):
+        block = input(f"Block {chr(65+i)}: ")
+        goal_state[chr(65+i)] = block
+    
+    # Set states and generate plan
+    bwp.set_initial_state(initial_state)
+    bwp.set_goal_state(goal_state)
+    
+    # Get and print plan
+    plan = bwp.plan()
+    print("\nPlan:")
+    if plan:
+        for i, step in enumerate(plan, 1):
+            print(f"{i}. {step}")
+    else:
+        print("No solution found!")
+
+if __name__ == "__main__":
+    main()
